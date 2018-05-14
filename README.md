@@ -1,6 +1,6 @@
 
 
-# Springboard mini project using data from The World Bank
+# World Bank - Springboard Mini Project
 
 
 ----------
@@ -54,7 +54,7 @@ python -m ipykernel install --user --name mini-project-world-bank --display-name
 
 ---
 
-## Open and walk-through the `sliderule_dsi_json_exercise.ipynb` notebook:
+## Walk through the `sliderule_dsi_json_exercise.ipynb` notebook:
 ```sh
 cd notebooks
 jupyter lab &
