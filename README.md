@@ -10,7 +10,7 @@
 Project Organization
 ------------
 
-
+```
     ├── README.md          <- The top-level README for developers using this project.
     │
     ├── data
@@ -23,8 +23,8 @@ Project Organization
     └── src                <- Source code for use in this project.
         ├── __init__.py    <- Makes src a Python module
         │        
-        └──  helper_functions.py  <- Scripts to assist in the project
-
+        └── helper_functions.py  <- Scripts to assist in the project
+```
     
     
 
@@ -36,25 +36,28 @@ Project Organization
 ---
 
 ### Setup conda:
-    conda create --name mini-project-world-bank python=3.6
-    conda activate mini-project-world-bank
+```sh
+conda create --name springboard-mini-projects python=3.6
+conda activate springboard-mini-projects
+```
 ---
 
 ### Install the requirements:
-
-    pip install -r requirements.txt
+```sh
+pip install -r requirements.txt
+```
 ---
 
 ### Setup the IPython kernel:
 
 
 ```sh
-python -m ipykernel install --user --name mini-project-world-bank --display-name "Python (mini-project-world-bank)"
+python -m ipykernel install --user --name springboard-mini-projects --display-name "Python (springboard-mini-projects)"
 ```
 
 ---
 
-## Walk through the `sliderule_dsi_json_exercise.ipynb` notebook:
+## Walk through the mini-project notebooks:
 ```sh
 cd notebooks
 jupyter lab &
