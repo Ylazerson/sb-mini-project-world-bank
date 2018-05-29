@@ -126,3 +126,19 @@ def get_x_y_for_line(bounds, y_intercept, slope):
 
     return x, y
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def get_srr_bins(p_data):
+    """
+    Get number of bins using the "square root rule"
+    """
+    
+    n_data = len(p_data)
+    
+    n_bins = np.sqrt(n_data)
+    
+    return int(n_bins)
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
