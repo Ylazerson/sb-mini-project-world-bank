@@ -4,6 +4,8 @@
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 import os
 
+from collections import namedtuple
+
 import numpy as np
 import pandas as pd
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -166,3 +168,44 @@ def draw_bootstrap_replicates(data, func, size=1):
 
     return bs_replicates
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def z_t_test_single_sample(p_sample_mean, p_hypothesized_mean, p_provided_std, p_sample_size):
+    """
+    Peform a single sample z or t test.
+    """
+
+    return (p_sample_mean - p_hypothesized_mean) / (p_provided_std / np.sqrt(p_sample_size))
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def get_mean_at_standard_score(p_standard_score, p_hypothesized_mean, p_provided_std, p_sample_size):
+    """
+    Get the value of mean that corresponds to the z or t score   
+    """
+
+    return (p_standard_score * (p_provided_std / np.sqrt(p_sample_size))) + p_hypothesized_mean
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def get_two_tailed_critical_values(p_alpha):
+    """
+    Get the lower and upper critical values that indicate the end ot the nonrejection area.  
+    """
+
+    Result = namedtuple('Result', 'lower_critical_value upper_critical_value')
+
+    result = Result(
+        p_alpha/2,
+        1 - (p_alpha/2)
+    )
+
+    return result
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
