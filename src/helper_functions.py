@@ -8,6 +8,10 @@ from collections import namedtuple
 
 import numpy as np
 import pandas as pd
+
+from scipy import stats
+
+import matplotlib.pyplot as plt
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -207,5 +211,73 @@ def get_two_tailed_critical_values(p_alpha):
 
     return result
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def plot_two_tailed_t_test(p_t, p_df, p_alpha):
+
+    
+    # -- -------------------------------------------
+    # Plot t-distribution
+    rv = stats.t(
+        df    = p_df, 
+        loc   = 0, 
+        scale = 1
+    )
+        
+    x = np.linspace(
+        rv.ppf(0.0001), 
+        rv.ppf(0.9999), 
+        100
+    )
+    
+    y = rv.pdf(x) 
+    
+    _ = plt.plot(x,y)
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Get the lower and upper critical t values
+    lower_critical_value, upper_critical_value = get_two_tailed_critical_values(p_alpha = p_alpha)
+    
+    lower_critical_t = stats.t.ppf(lower_critical_value, p_df)
+
+    upper_critical_t = stats.t.ppf(upper_critical_value, p_df)
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Plot the t values
+    _ = plt.axvline(
+        x     = lower_critical_t,
+        color = 'green'
+    )
+        
+    _ = plt.axvline(
+        x     = upper_critical_t,
+        color = 'green',
+        label = '\u03B1 = '+str(p_alpha)+' critical values: +- '+str(round(upper_critical_t, 4))
+    )
+    
+    _ = plt.axvline(
+        x     = p_t,
+        color = 'red',
+        label = 't: '+str(round(p_t, 4))
+    )
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    _ = plt.title('t distribution for df = '+str(p_df))
+    _ = plt.xlabel('t distribution for df = '+str(p_df))
+    _ = plt.ylabel('PDF')    
+    _ = plt.legend(loc='upper center')
+    
+    
+    _ = plt.xlim(-7, 7)    
+    _ = plt.ylim(0, .7)
+    
+    plt.show()
+    # -- -------------------------------------------
 
 
