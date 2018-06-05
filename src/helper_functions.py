@@ -180,18 +180,34 @@ def z_t_test_single_sample(p_sample_mean, p_hypothesized_mean, p_provided_std, p
     Peform a single sample z or t test.
     """
 
-    return (p_sample_mean - p_hypothesized_mean) / (p_provided_std / np.sqrt(p_sample_size))
+    # -- -------------------------------------------
+    sem = (p_provided_std / np.sqrt(p_sample_size))
+
+    z_t_stat = (p_sample_mean - p_hypothesized_mean) / sem
+    # -- -------------------------------------------
+
+    # -- -------------------------------------------
+    Result = namedtuple('Result', 'z_t_stat sem')
+
+    result = Result(
+        z_t_stat,
+        sem
+    )
+
+    return result
+    # -- -------------------------------------------
+
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def get_mean_at_standard_score(p_standard_score, p_hypothesized_mean, p_provided_std, p_sample_size):
+def get_val_at_standard_score(p_standard_score, p_hypothesized_mean, p_sem):
     """
-    Get the value of mean that corresponds to the z or t score   
+    Get the value that corresponds to the z or t score   
     """
 
-    return (p_standard_score * (p_provided_std / np.sqrt(p_sample_size))) + p_hypothesized_mean
+    return (p_standard_score * p_sem) + p_hypothesized_mean
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -212,72 +228,309 @@ def get_two_tailed_critical_values(p_alpha):
     return result
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def plot_two_tailed_t_test(p_t, p_df, p_alpha):
 
-    
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def plot_two_tailed_t_test(p_hypothesized_mean, p_data, p_alpha, p_data_content_desc):
+    '''
+    Plot a single sample t-test.
+    '''
+
     # -- -------------------------------------------
-    # Plot t-distribution
+    # Gather the core statistic values
+    sample_mean = np.mean(p_data)
+    sample_std  = np.std(p_data, ddof=1)  # using ddof=1 for sample std
+    sample_size = len(p_data)
+
+    df = sample_size - 1
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Get the t score and sem
+    t, sem = z_t_test_single_sample(
+            p_sample_mean       = sample_mean,
+            p_hypothesized_mean = p_hypothesized_mean,
+            p_provided_std      = sample_std,
+            p_sample_size       = sample_size
+        )
+    # -- -------------------------------------------    
+
+
+    # -- -------------------------------------------
+    # Get the lower and upper critical boundary values
+    lower_critical_value, upper_critical_value = get_two_tailed_critical_values(p_alpha = p_alpha)
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Get the lower and upper critical boundary t scores
+    lower_critical_t = stats.t.ppf(lower_critical_value, df)
+
+    upper_critical_t = stats.t.ppf(upper_critical_value, df)
+    # -- -------------------------------------------
+   
+
+    # -- -------------------------------------------
+    # Get the p-value
+    p_value = stats.t.cdf(t, df)
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Create the x ticks
+    xticks = list(range(-6, 7, 2))
+    
+    xticks.extend([t, lower_critical_t, upper_critical_t])
+    
+    xticks = sorted(xticks)
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Create the x tick labels
+    xticklabels = []
+    for x in xticks:
+        xticklabels.append(
+            round(
+                get_val_at_standard_score(
+                    p_standard_score   = x,
+                    p_hypothesized_mean= p_hypothesized_mean,
+                    p_sem              = sem
+                ), 1
+            )
+        )
+    # -- -------------------------------------------
+    
+
+    # -- -------------------------------------------
+    # Setup up the plot axes
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111)
+    ax2 = ax1.twiny()
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Plot t-distribution on ax1
     rv = stats.t(
-        df    = p_df, 
-        loc   = 0, 
+        df    = df,
+        loc   = 0,
         scale = 1
     )
-        
+
     x = np.linspace(
-        rv.ppf(0.0001), 
-        rv.ppf(0.9999), 
+        rv.ppf(0.0001),
+        rv.ppf(0.9999),
         100
     )
-    
-    y = rv.pdf(x) 
-    
-    _ = plt.plot(x,y)
+
+    y = rv.pdf(x)
+
+    _ = ax1.plot(x, y)
     # -- -------------------------------------------
 
 
     # -- -------------------------------------------
-    # Get the lower and upper critical t values
-    lower_critical_value, upper_critical_value = get_two_tailed_critical_values(p_alpha = p_alpha)
-    
-    lower_critical_t = stats.t.ppf(lower_critical_value, p_df)
-
-    upper_critical_t = stats.t.ppf(upper_critical_value, p_df)
-    # -- -------------------------------------------
-
-
-    # -- -------------------------------------------
-    # Plot the t values
-    _ = plt.axvline(
+    # Plot the t values on ax1
+    _ = ax1.axvline(
         x     = lower_critical_t,
         color = 'green'
     )
-        
-    _ = plt.axvline(
+
+    _ = ax1.axvline(
         x     = upper_critical_t,
         color = 'green',
-        label = '\u03B1 = '+str(p_alpha)+' critical values: +- '+str(round(upper_critical_t, 4))
+        label = 'critical values (\u03B1 = '+str(p_alpha)+')'
     )
-    
-    _ = plt.axvline(
-        x     = p_t,
+
+    _ = ax1.axvline(
+        x     = t,
         color = 'red',
-        label = 't: '+str(round(p_t, 4))
+        label = 't (p-value = '+str(round(p_value, 3))+')'
     )
     # -- -------------------------------------------
 
 
     # -- -------------------------------------------
-    _ = plt.title('t distribution for df = '+str(p_df))
-    _ = plt.xlabel('t distribution for df = '+str(p_df))
-    _ = plt.ylabel('PDF')    
-    _ = plt.legend(loc='upper center')
+    # Set ax1 lables and ticks
+    _ = ax1.set_xlabel('t scores (df = '+str(df)+')')
+    _ = ax1.set_ylabel('PDF')
+    _ = ax1.legend(loc='upper right')
+
+    _ = ax1.set_xlim(-7, 7)
+    _ = ax1.set_xticks(xticks)
+    _ = ax1.tick_params(axis = 'x', labelrotation = 70)
+
+    _ = ax1.set_ylim(0, .7)
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Set ax2 labels and ticks
+    _ = ax2.set_xlim(ax1.get_xlim())
     
-    
-    _ = plt.xlim(-7, 7)    
-    _ = plt.ylim(0, .7)
-    
+    _ = ax2.set_xticks(xticks)
+    _ = ax2.set_xticklabels(xticklabels)
+    _ = ax2.tick_params(axis = 'x', labelrotation = 70)
+
+    _ = ax2.set_xlabel(p_data_content_desc+' (SEM = '+str(round(sem, 2))+')')
+
     plt.show()
     # -- -------------------------------------------
 
 
+
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def plot_two_tailed_z_test(p_hypothesized_mean, p_data, p_alpha, p_data_content_desc):
+    '''
+    Plot a single sample z-test.
+    '''
+
+    # -- -------------------------------------------
+    # Gather the core statistic values
+    sample_mean  = np.mean(p_data)
+    provided_std = np.std(p_data, ddof = 0) # ddof=0 because we're using (or appropriating) the population std 
+    sample_size  = len(p_data)
+
+    df = sample_size - 1
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Get the z score and sem
+    z, sem = z_t_test_single_sample(
+            p_sample_mean       = sample_mean,
+            p_hypothesized_mean = p_hypothesized_mean,
+            p_provided_std      = provided_std,
+            p_sample_size       = sample_size
+        )
+    # -- -------------------------------------------    
+
+
+    # -- -------------------------------------------
+    # Get the lower and upper critical boundary values
+    lower_critical_value, upper_critical_value = get_two_tailed_critical_values(p_alpha = p_alpha)
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Get the lower and upper critical boundary z scores
+    lower_critical_z = stats.norm.ppf(lower_critical_value)
+
+    upper_critical_z = stats.norm.ppf(upper_critical_value)
+    # -- -------------------------------------------
+   
+
+    # -- -------------------------------------------
+    # Get the p-value
+    p_value = stats.norm.cdf(z)
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Create the x ticks
+    xticks = list(range(-6, 7, 2))
+    
+    if .03 <= p_alpha <= .07:
+        # don't add lower/upper critical z values because overlap with std of 2
+        xticks.append(z)
+    else:
+        xticks.extend([z, lower_critical_z, upper_critical_z])
+    
+    xticks = sorted(xticks)
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Create the x tick labels
+    xticklabels = []
+    for x in xticks:
+        xticklabels.append(
+            round(
+                get_val_at_standard_score(
+                    p_standard_score   = x,
+                    p_hypothesized_mean= p_hypothesized_mean,
+                    p_sem              = sem
+                ), 1
+            )
+        )
+    # -- -------------------------------------------
+    
+
+    # -- -------------------------------------------
+    # Setup up the plot axes
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111)
+    ax2 = ax1.twiny()
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Plot z-distribution on ax1
+    mu       = 0
+    variance = 1
+    sigma    = np.sqrt(variance)
+
+    x = np.linspace(
+        mu - 3*sigma, 
+        mu + 3*sigma, 
+        100
+    )
+
+    y = stats.norm.pdf(
+        x, 
+        mu, 
+        sigma    
+    )
+
+    _ = ax1.plot(x, y)
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Plot the z values on ax1
+    _ = ax1.axvline(
+        x     = lower_critical_z,
+        color = 'green'
+    )
+
+    _ = ax1.axvline(
+        x     = upper_critical_z,
+        color = 'green',
+        label = 'critical values (\u03B1 = '+str(p_alpha)+')'
+    )
+
+    _ = ax1.axvline(
+        x     = z,
+        color = 'red',
+        label = 'z (p-value = '+str(round(p_value, 3))+')'
+    )
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Set ax1 lables and ticks
+    _ = ax1.set_xlabel('z scores')
+    _ = ax1.set_ylabel('PDF')
+    _ = ax1.legend(loc='upper right')
+
+    _ = ax1.set_xlim(-7, 7)
+    _ = ax1.set_xticks(xticks)
+    _ = ax1.tick_params(axis = 'x', labelrotation = 70)
+
+    _ = ax1.set_ylim(0, .7)
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Set ax2 labels and ticks
+    _ = ax2.set_xlim(ax1.get_xlim())
+    _ = ax2.set_xticks(xticks)
+    _ = ax2.set_xticklabels(xticklabels)
+    _ = ax2.tick_params(axis = 'x', labelrotation = 70)
+    
+    _ = ax2.set_xlabel(p_data_content_desc+' (SEM = '+str(round(sem, 2))+')')
+
+    plt.show()
+    # -- -------------------------------------------
