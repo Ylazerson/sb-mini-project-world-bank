@@ -175,13 +175,23 @@ def draw_bootstrap_replicates(data, func, size=1):
 
 
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def get_sem(p_provided_std, p_sample_size):
+    """
+    Return the Standard Error of the Mean
+    """
+
+    return p_provided_std / np.sqrt(p_sample_size)
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def z_t_test_single_sample(p_sample_mean, p_hypothesized_mean, p_provided_std, p_sample_size):
     """
     Peform a single sample z or t test.
     """
 
     # -- -------------------------------------------
-    sem = (p_provided_std / np.sqrt(p_sample_size))
+    sem = p_provided_std / np.sqrt(p_sample_size)
 
     z_t_stat = (p_sample_mean - p_hypothesized_mean) / sem
     # -- -------------------------------------------
@@ -230,6 +240,77 @@ def get_two_tailed_critical_values(p_alpha):
 
 
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def print_namedtuple(p_namedtuple):
+
+    for name, value in p_namedtuple._asdict().items():
+        print(name.ljust(25), ':', value)
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def get_ci_sigma_unknown(p_data, p_alpha):
+    """
+    Get the confidence interval where sigma is unknown 
+    """
+
+    # -- -------------------------------------------
+    # Gather the core statistic values
+    sample_mean = np.mean(p_data)
+    sample_std  = np.std(p_data, ddof=1)  # using ddof=1 for sample std
+    sample_size = len(p_data)
+
+    df = sample_size - 1
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    # Get the standard error of the mean 
+    sem = get_sem(
+        p_provided_std      = sample_std,
+        p_sample_size       = sample_size
+    )
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------    
+    # Calculate the Margin of Error and Confidence Interval
+    _, upper_critical_value = get_two_tailed_critical_values(p_alpha = p_alpha)
+
+    upper_critical_t = stats.t.ppf(upper_critical_value, df)
+
+    # Get the margin of error:
+    moe = upper_critical_t * sem
+
+    # Calculate the confidence interval:
+    ci = np.array([sample_mean - moe, sample_mean + moe])
+    # -- -------------------------------------------
+
+
+    # -- -------------------------------------------
+    Result = namedtuple('Result', 'sample_mean sample_std sample_size alpha sem confidence_level_pct critical_t_statistic margin_of_error confidence_interval')
+
+    result = Result(
+        sample_mean,
+        sample_std,
+        sample_size,
+        p_alpha,
+        sem,
+        upper_critical_value * 100,
+        upper_critical_t,
+        moe,
+        ci
+    )
+
+    return result
+    # -- -------------------------------------------
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+  
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def plot_two_tailed_t_test(p_hypothesized_mean, p_data, p_alpha, p_data_content_desc):
     '''
     Plot a single sample t-test.
@@ -248,11 +329,11 @@ def plot_two_tailed_t_test(p_hypothesized_mean, p_data, p_alpha, p_data_content_
     # -- -------------------------------------------
     # Get the t score and sem
     t, sem = z_t_test_single_sample(
-            p_sample_mean       = sample_mean,
-            p_hypothesized_mean = p_hypothesized_mean,
-            p_provided_std      = sample_std,
-            p_sample_size       = sample_size
-        )
+        p_sample_mean       = sample_mean,
+        p_hypothesized_mean = p_hypothesized_mean,
+        p_provided_std      = sample_std,
+        p_sample_size       = sample_size
+    )
     # -- -------------------------------------------    
 
 
@@ -378,6 +459,7 @@ def plot_two_tailed_t_test(p_hypothesized_mean, p_data, p_alpha, p_data_content_
     plt.show()
     # -- -------------------------------------------
 
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
@@ -400,11 +482,11 @@ def plot_two_tailed_z_test(p_hypothesized_mean, p_data, p_alpha, p_data_content_
     # -- -------------------------------------------
     # Get the z score and sem
     z, sem = z_t_test_single_sample(
-            p_sample_mean       = sample_mean,
-            p_hypothesized_mean = p_hypothesized_mean,
-            p_provided_std      = provided_std,
-            p_sample_size       = sample_size
-        )
+        p_sample_mean       = sample_mean,
+        p_hypothesized_mean = p_hypothesized_mean,
+        p_provided_std      = provided_std,
+        p_sample_size       = sample_size
+    )
     # -- -------------------------------------------    
 
 
@@ -534,3 +616,7 @@ def plot_two_tailed_z_test(p_hypothesized_mean, p_data, p_alpha, p_data_content_
 
     plt.show()
     # -- -------------------------------------------
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
