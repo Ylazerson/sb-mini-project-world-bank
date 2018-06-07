@@ -666,3 +666,56 @@ def diff_of_means(data_1, data_2):
 
     return diff
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def diff_frac(data_1, data_2):
+    """Difference in rate of two arrays."""
+
+    frac_1 = np.sum(data_1) / len(data_1)
+    frac_2 = np.sum(data_2) / len(data_2)
+
+    return frac_1 - frac_2
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def two_proportion_standard_error(hits1, attempts1, hits2, attempts2):
+    """Return the standard error of two proportions."""
+    
+    # Calculate proportions:
+    proportion1 = hits1/attempts1
+    proportion2 = hits2/attempts2
+    
+    # Calculate standard error:
+    SE = np.sqrt(proportion1*(1 - proportion1)/attempts1  +  proportion2*(1 - proportion2)/attempts2)
+    return SE
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     
+
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def two_proportion_confidence_interval(hits1, attempts1, hits2, attempts2, alpha=0.05):
+    """Return the confidence interval for a two-proportion test."""
+    
+    # Calculate proportions:
+    proportion1 = hits1/attempts1
+    proportion2 = hits2/attempts2
+    difference_of_proportions = proportion1 - proportion2
+    
+    # Calculate standard error:
+    SE = two_proportion_standard_error(hits1, attempts1, hits2, attempts2)
+    
+    # Save the critical value at the specified confidence:
+    z_critical = stats.norm.ppf(1 - 0.5*alpha)
+    
+    # Calculate margin of error:
+    moe = z_critical * SE
+    
+    # Calculate confidence intervals:
+    confidence_lower = proportion2 - proportion1 - moe
+    confidence_higher = proportion2 - proportion1 + moe
+    
+    return difference_of_proportions, moe, confidence_lower, confidence_higher
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
