@@ -1,6 +1,6 @@
 
 
-# World Bank - Springboard Mini Project
+# Springboard Mini Projects
 
 
 ----------
