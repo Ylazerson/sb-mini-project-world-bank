@@ -1,16 +1,6 @@
 -- B''H --
 
 
-/*
-Look into:
-https://github.com/tmcdunn/springboard-hospital_readmissions/blob/master/Hospital_Readmissions_exercise.ipynb
-https://github.com/philopaszoon/capstone1/blob/master/hospital_readmissions.ipynb
-https://github.com/tmcdunn/springboard-hospital_readmissions/blob/master/Hospital_Readmissions_exercise.ipynb
-https://github.com/DrAugustine1981/Springboard/blob/master/hospital_readmission_EDA.ipynb
-https://www.medicare.gov/hospitalcompare/readmission-reduction-program.html
-https://www.nejm.org/doi/full/10.1056/NEJMc1212281
-https://www.healthworkscollective.com/9-criticisms-readmission-reduction-program/
-*/
 
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
