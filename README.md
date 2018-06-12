@@ -48,6 +48,14 @@ pip install -r requirements.txt
 ```
 ---
 
+### Download the Kaggle competition files:
+```sh
+kaggle competitions download -c house-prices-advanced-regression-techniques
+```
+- This will place the files in the following dir: `~/.kaggle/competitions/house-prices-advanced-regression-techniques/` 
+---
+
+
 ### Setup the IPython kernel:
 
 
