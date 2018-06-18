@@ -17,11 +17,17 @@ import matplotlib.pyplot as plt
 
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This will allow the module to be import-able from other scripts and callable from arbitrary places in the system.
-MODULE_DIR = os.path.dirname(__file__)
+MODULE_DIR       = os.path.dirname(__file__)
 
-PROJ_ROOT = os.path.join(MODULE_DIR, os.pardir)
+PROJ_ROOT        = os.path.join(MODULE_DIR, os.pardir)
 
-DATA_DIR = os.path.join(PROJ_ROOT, 'data')
+DATA_DIR         = os.path.join(PROJ_ROOT, 'data')
+
+DATA_RAW_DIR     = os.path.join(DATA_DIR, 'raw')
+
+DATA_CLEAN_DIR   = os.path.join(DATA_DIR, 'clean')
+
+DATA_INTERIM_DIR = os.path.join(DATA_DIR, 'etl-interim')
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
