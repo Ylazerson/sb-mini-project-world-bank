@@ -180,6 +180,107 @@ def draw_bootstrap_replicates(data, func, size=1):
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def bootstrap_two_sample_diff_in_proportions(p_group_1_count, p_group_1_sample_size, p_group_2_count, p_group_2_sample_size, p_size=1, p_alpha=.05):
+    """
+    Generate bootstrap replicates for difference in two proportions
+    """
+
+
+    # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    original_group_1_proportion = p_group_1_count / p_group_1_sample_size 
+    original_group_2_proportion = p_group_2_count / p_group_2_sample_size 
+    
+    original_proportion_diff = original_group_1_proportion - original_group_2_proportion
+    # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
+    # Create an array of zeros and ones with the same proportions as group_1
+
+    arr_1 = np.array([0] * (p_group_1_sample_size - p_group_1_count) + [1] * p_group_1_count)
+
+    np.random.shuffle(arr_1)
+    # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
+    # Create an array of zeros and ones with the same proportions as group_2
+
+    arr_2 = np.array([0] * (p_group_2_sample_size - p_group_2_count) + [1] * p_group_2_count)
+
+    np.random.shuffle(arr_2)
+    # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Initialize array of replicates: 
+    bs_replicates = np.empty(p_size)
+
+    # Generate replicates
+    for i in range(p_size):
+
+        # Generate bootstrap sample for arr_1 and arr_2    
+        bs_sample_arr_1 = np.random.choice(arr_1, len(arr_1))
+        bs_sample_arr_2 = np.random.choice(arr_2, len(arr_2))
+        
+        # Get the proportions on the bootstrap samples 
+        bs_sample_arr_1_proportion = np.sum(bs_sample_arr_1) / len(bs_sample_arr_1)
+        bs_sample_arr_2_proportion = np.sum(bs_sample_arr_2) / len(bs_sample_arr_2)
+
+        # Add the diff of those proportions to the bs_replicates array:
+        bs_replicates[i] = bs_sample_arr_1_proportion - bs_sample_arr_2_proportion
+    # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Get the bootstrap mean and standard error
+    bs_mean = np.mean(bs_replicates)
+    bs_std  = np.std(bs_replicates)
+    # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Get the confidence interval
+    lower_critical_value, upper_critical_value = get_two_tailed_critical_values(p_alpha = p_alpha)
+
+    ci_lower, ci_upper = np.percentile(bs_replicates, [lower_critical_value*100, upper_critical_value*100])
+    # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Result = namedtuple(
+        'Result', [
+            'original_group_1_proportion', 
+            'original_group_2_proportion', 
+            'original_proportion_diff', 
+            'bs_mean', 
+            'bs_std', 
+            'ci_lower',
+            'ci_upper',
+            'bs_replicates'
+        ]
+    )
+
+    result = Result(
+        original_group_1_proportion,
+        original_group_2_proportion,
+        original_proportion_diff,
+        bs_mean,
+        bs_std,
+        ci_lower,
+        ci_upper,
+        bs_replicates
+    )
+
+    return result
+    # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def get_sem(p_provided_std, p_sample_size):
     """
@@ -720,8 +821,8 @@ def two_proportion_confidence_interval(hits1, attempts1, hits2, attempts2, alpha
     moe = z_critical * SE
     
     # Calculate confidence intervals:
-    confidence_lower = proportion2 - proportion1 - moe
-    confidence_higher = proportion2 - proportion1 + moe
+    confidence_lower  = difference_of_proportions - moe
+    confidence_higher = difference_of_proportions + moe
     
     return difference_of_proportions, moe, confidence_lower, confidence_higher
 # -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
