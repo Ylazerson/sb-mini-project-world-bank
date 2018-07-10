@@ -9,3 +9,4 @@ ipykernel
 pylint
 autopep8
 kaggle
+statsmodels
