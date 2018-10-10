@@ -58,7 +58,7 @@ pip install -r requirements.txt
 **Then:**
 
 ```sh
-kaggle competitions download -c house-prices-advanced-regression-techniques ~/.kaggle/competitions/house-prices-advanced-regression-techniques/
+kaggle competitions download -c house-prices-advanced-regression-techniques -p ~/.kaggle/competitions/house-prices-advanced-regression-techniques/
 ```
 - This will place the files in the following dir: `~/.kaggle/competitions/house-prices-advanced-regression-techniques/` 
 ---
