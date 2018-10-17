@@ -10,3 +10,4 @@ pylint
 autopep8
 kaggle
 statsmodels
+xlrd
